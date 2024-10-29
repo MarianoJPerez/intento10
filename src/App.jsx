@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
-import Login from './components/Login';
+import LoginWithCarouselAPI from './components/LoginWithCarouselAPI'; 
 import GameList from './components/GameList';
 import Wishlist from './components/Wishlist';
 import Navbar from './components/Navbar';
@@ -29,7 +29,6 @@ const App = () => {
 
   const addToWishlist = (game) => {
     if (currentUser) {
-      // Evita la mutación del estado, crea un nuevo objeto de usuario
       const updatedWishlist = [...currentUser.wishlist, game];
       setCurrentUser({ ...currentUser, wishlist: updatedWishlist });
     }
@@ -49,7 +48,7 @@ const App = () => {
   return (
     <div>
       {!currentUser ? (
-        <Login setCurrentUser={setCurrentUser} />
+        <LoginWithCarouselAPI setCurrentUser={setCurrentUser} />
       ) : (
         <div>
           <h1>Bienvenido, {currentUser.username}</h1>
