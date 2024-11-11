@@ -5,6 +5,8 @@ import GameList from './components/GameList';
 import Wishlist from './components/Wishlist';
 import Navbar from './components/Navbar';
 import axios from 'axios';
+import Header from './components/Header';
+import './styles.css';
 
 const App = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -46,33 +48,32 @@ const App = () => {
   };
 
   return (
-    <div>
-      {!currentUser ? (
-        <LoginWithCarouselAPI setCurrentUser={setCurrentUser} />
-      ) : (
-        <div>
-          <h1>Bienvenido, {currentUser.username}</h1>
-          <button onClick={handleLogout}>Cerrar Sesión</button>
-          <Navbar currentView={currentView} setCurrentView={setCurrentView} />
-          {loading ? (
-            <p>Cargando juegos...</p>
-          ) : (
-            <>
-              {currentView === 'games' ? (
-                <GameList
-                  games={games}
-                  currentUser={currentUser}
-                  addToWishlist={addToWishlist}
-                  removeFromWishlist={removeFromWishlist}
-                />
-              ) : (
-                <Wishlist currentUser={currentUser} removeFromWishlist={removeFromWishlist} />
-              )}
-            </>
-          )}
-        </div>
-      )}
-    </div>
+    <div className="min-h-screen text-white">
+    {!currentUser ? (
+      <LoginWithCarouselAPI setCurrentUser={setCurrentUser} />
+    ) : (
+      <div>
+        <Header currentUser={currentUser} handleLogout={handleLogout} />
+        <Navbar currentView={currentView} setCurrentView={setCurrentView} />
+        {loading ? (
+          <p className="text-center">Cargando juegos...</p>
+        ) : (
+          <>
+            {currentView === 'games' ? (
+              <GameList
+                games={games}
+                currentUser={currentUser}
+                addToWishlist={addToWishlist}
+                removeFromWishlist={removeFromWishlist}
+              />
+            ) : (
+              <Wishlist currentUser={currentUser} removeFromWishlist={removeFromWishlist} />
+            )}
+          </>
+        )}
+      </div>
+    )}
+  </div>
   );
 };
 

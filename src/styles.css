@@ -24,12 +24,8 @@ nav a, nav button {
     margin-top: 20px;
 }
 
-/* src/App.css o un archivo CSS separado */
-nav {
-    background-color: #282c34;
-    padding: 10px;
-  }
-  
+
+
   nav ul {
     list-style: none;
     display: flex;
@@ -41,3 +37,18 @@ nav {
     cursor: pointer;
   }
   
+  .banner-background {
+    background-image: url('http://localhost:5173/plataformasDesarrollo/infinity.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .side-column {
+    background-image: url('/plataformasDesarrollo/lateral.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .invert-image {
+    transform: scaleX(-1);
+  }
