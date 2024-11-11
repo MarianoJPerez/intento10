@@ -17,7 +17,7 @@ const GameList = ({ games, addToWishlist, removeFromWishlist }) => {
                   <img
                     src={game.background_image}
                     alt={game.name}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-48 object-contain"
                   />
                 )}
                 <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent text-white p-4">
