@@ -19,9 +19,11 @@ const App = () => {
 
   // Recuperar usuario de localStorage si está presente al cargar la aplicación
   useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = JSON.parse(localStorage.getItem('currentUser'));
     if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser)); // Si el usuario está en localStorage, lo carga
+      const storedWishlist = JSON.parse(localStorage.getItem(`wishlist_${storedUser.userId}`));
+      storedUser.wishlist = storedWishlist || [];
+      setCurrentUser(storedUser);
     }
   }, []);
 
@@ -44,8 +46,14 @@ const App = () => {
   }, []);
 
   const handleLogout = () => {
-    setCurrentUser(null); // Restablecer el estado del usuario
-    localStorage.removeItem('user'); // Eliminar los datos del usuario en localStorage
+    // Verificar si el usuario tiene una wishlist antes de cerrar sesión
+    if (currentUser && currentUser.wishlist?.length > 0) {
+      localStorage.setItem(`wishlist_${currentUser.userId}`, JSON.stringify(currentUser.wishlist));
+    }
+  
+
+      setCurrentUser(null);
+      localStorage.removeItem('user');
   };
 
   const handleGameClick = (game) => {
@@ -64,32 +72,33 @@ const App = () => {
   };
 
   const addToWishlist = (game) => {
-    // Asegúrate de que currentUser esté disponible
     if (currentUser) {
-      // Actualiza la wishlist del usuario
-      const updatedUser = {
-        ...currentUser,
-        wishlist: [...currentUser.wishlist, game],
-      };
-  
-      setCurrentUser(updatedUser); // Actualiza el estado de currentUser
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));// También puedes guardar la wishlist en localStorage o en tu backend si lo necesitas
-    }
-  };
-
-  const removeFromWishlist = (gameToRemove) => {
-    if (currentUser) {
-      // Filtrar el juego que se va a eliminar de la wishlist
-      const updatedWishlist = currentUser.wishlist.filter((game) => game.id !== gameToRemove.id);
-      
-      // Actualizar el estado de currentUser
+      const updatedWishlist = [...(currentUser.wishlist || []), game];
       const updatedUser = {
         ...currentUser,
         wishlist: updatedWishlist,
       };
   
-      setCurrentUser(updatedUser); // Actualizar el estado de currentUser
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));// También puedes guardar la nueva wishlist en localStorage o en tu backend si lo necesitas
+      setCurrentUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      localStorage.setItem(`wishlist_${currentUser.userId}`, JSON.stringify(updatedWishlist)); // Guarda la wishlist separada por usuario
+    }
+  };
+
+  const removeFromWishlist = (gameToRemove) => {
+    if (currentUser) {
+      const updatedWishlist = currentUser.wishlist.filter(
+        (game) => game.id !== gameToRemove.id
+      );
+  
+      const updatedUser = {
+        ...currentUser,
+        wishlist: updatedWishlist,
+      };
+  
+      setCurrentUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      localStorage.setItem(`wishlist_${currentUser.userId}`, JSON.stringify(updatedWishlist)); // Actualiza la wishlist separada por usuario
     }
   };
 
