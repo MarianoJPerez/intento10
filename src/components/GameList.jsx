@@ -1,6 +1,11 @@
 import React from 'react';
 
 const GameList = ({ games, addToWishlist, removeFromWishlist, onGameClick, currentUser }) => {
+  const handleGameClick = (game) => {
+    window.scrollTo(0, 0); // Desplaza la página al inicio
+    onGameClick(game); // Llama a la función para ver los detalles del juego
+  };
+  
   return (
     <div className="bg-gray-900 min-h-screen text-white p-8">
       <h2 className="text-3xl font-semibold mb-6 text-center text-gray-100">Lista de Juegos</h2>
@@ -23,7 +28,7 @@ const GameList = ({ games, addToWishlist, removeFromWishlist, onGameClick, curre
                   {/* Clic para ver detalles del juego */}
                   <h3
                     className="text-xl font-semibold truncate cursor-pointer"
-                    onClick={() => onGameClick(game)}
+                    onClick={() => handleGameClick(game)}
                   >
                     {game.name}
                   </h3>

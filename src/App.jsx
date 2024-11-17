@@ -47,7 +47,8 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
+    setCurrentUser(null); // Restablecer el estado del usuario
+    localStorage.removeItem('user'); // Eliminar los datos del usuario en localStorage
   };
 
   // Función para manejar el clic en un juego

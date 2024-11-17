@@ -1,6 +1,8 @@
 import React from 'react';
 
 const GameDetail = ({ game, setCurrentView }) => {
+
+    
   return (
     <div className="bg-gray-900 min-h-screen text-white p-8">
       <button

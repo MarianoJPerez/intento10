@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { users } from './users';
   {/* en lo que seria el codigo de la parte visual, utilizamos una misma imagen para las columnas izquierda y derecha (se utilizo la propiedad transform para invertir la imagen), ademas de esto pusimos un banner hecho con AI y editamos un formulario de login */}
 const LoginWithCarouselAPI = ({ setCurrentUser }) => {
   const [username, setUsername] = useState('');
@@ -7,6 +8,13 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
   const [error, setError] = useState('');
   const [games, setGames] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem('user'));
+    if (savedUser) {
+      setCurrentUser(savedUser); // Restaura el usuario desde localStorage
+    }
+  }, [setCurrentUser]);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -31,16 +39,21 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    const userRole = username === 'admin' ? 'admin' : 'user';
 
-    const user = { username, password, wishlist: [], role: userRole };
-    if (username && password) {
+    const user = users.find(
+      (u) => u.username === username && u.password === password
+    );
+
+    if (user) {
       setCurrentUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
       setError('');
     } else {
       setError('Credenciales incorrectas');
     }
   };
+
+  
 
   return (
     <div className="grid grid-cols-12 min-h-screen bg-gradient-to-b from-[#1e1e1e] via-[#1f2a21] to-[#101010] text-white">
