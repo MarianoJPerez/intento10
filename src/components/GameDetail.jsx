@@ -9,7 +9,7 @@ const GameDetail = ({ game, setCurrentView }) => {
         onClick={() => setCurrentView('games')}
         className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mb-6"
       >
-        Volver a la Lista
+        Volver a la lista de juegos
       </button>
 
       <h2 className="text-4xl font-bold mb-4">{game.name}</h2>

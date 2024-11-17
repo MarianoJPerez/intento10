@@ -9,7 +9,8 @@ export const users = [
     {
       username: "admin",
       password: "admin123",
-      role: "admin", // Administrador
+      role: "admin",
+      wishlist: [] // Administrador
     },
   ];
   

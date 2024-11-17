@@ -7,7 +7,7 @@ const Header = ({ currentUser, handleLogout }) => {
       {/* logo para la tienda */}
       <div className="flex items-center">
         <img src={logo} alt="Logo de la tienda" className="w-16 h-16 mr-4" />
-        <h1 className="text-3xl font-bold">Nombre de la Tienda</h1>
+        <h1 className="text-3xl font-bold">INFINITY GAMES</h1>
       </div>
 
       {/* Aca va el boton de cierre de sesion y un saludo para el usuario*/}

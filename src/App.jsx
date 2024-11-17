@@ -19,8 +19,10 @@ const App = () => {
   // Fetch de la API para obtener los juegos
   useEffect(() => {
     const fetchGames = async () => {
+      const page = 1; // Número de página
+      const pageSize = 40; // Cantidad de juegos por página
       try {
-        const response = await axios.get('https://api.rawg.io/api/games?key=0b6043ca10304ceb8d5fa64a76a75965');
+        const response = await axios.get(`https://api.rawg.io/api/games?key=0b6043ca10304ceb8d5fa64a76a75965&page=${page}&page_size=${pageSize}`);    //ACA SE MODIFICA EL NUMERO DE PAGINA Y CANTIDAD DE JUEGOS
         setGames(response.data.results);
         setLoading(false);
       } catch (error) {
@@ -31,6 +33,11 @@ const App = () => {
 
     fetchGames();
   }, []);
+
+  // Función para eliminar un juego de la lista de juegos
+  const removeGameFromStore = (gameToRemove) => {
+    setGames((prevGames) => prevGames.filter((game) => game.id !== gameToRemove.id));
+  };
 
   const addToWishlist = (game) => {
     if (currentUser) {
@@ -57,6 +64,12 @@ const App = () => {
     setCurrentView('gameDetail');
   };
 
+  // Función para volver a la lista de deseados
+  const handleBackToGames = () => {
+    setCurrentView('games'); // Regresa a la vista de JUEGOS
+    setSelectedGame(null); // Restablece el juego seleccionado
+  };
+
   return (
     <div className="min-h-screen text-white">
       {!currentUser ? (
@@ -76,13 +89,23 @@ const App = () => {
                   removeFromWishlist={removeFromWishlist}
                   onGameClick={handleGameClick}
                   currentUser={currentUser}
+                  removeGameFromStore={removeGameFromStore}
+                  
                 />
               )}
               {currentView === 'wishlist' && (
-                <Wishlist currentUser={currentUser} removeFromWishlist={removeFromWishlist} />
+                <Wishlist 
+                currentUser={currentUser} 
+                removeFromWishlist={removeFromWishlist} 
+                setSelectedGame={handleGameClick}
+                />
               )}
-              {currentView === 'gameDetail' && selectedGame && (
-                <GameDetail game={selectedGame} setCurrentView={setCurrentView} />
+              
+              {selectedGame && (
+              <GameDetail 
+              game={selectedGame} // Muestra el detalle del juego cuando se selecciona uno
+              setCurrentView={handleBackToGames} // Usamos esta nueva función para volver a la lista de deseados
+              /> 
               )}
             </>
           )}
