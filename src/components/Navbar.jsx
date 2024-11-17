@@ -1,20 +1,28 @@
-// src/components/Navbar.jsx
 import React from 'react';
 
 const Navbar = ({ currentView, setCurrentView }) => {
   return (
-    <nav className="bg-red-600 p-1">
-      <ul>
-        <li onClick={() => setCurrentView('games')} className="cursor-pointer text-white bg-black font-bold text-lg px-4 py-2 rounded border-2  inline-block hover:bg-blue-600">
-          Lista de Juegos
-        </li>
-        <li
-  onClick={() => setCurrentView('wishlist')}
-  className="cursor-pointer text-white bg-black font-bold text-lg px-4 py-2 rounded border-2  inline-block hover:bg-blue-600"
->
-  Lista de Deseados
-</li>
-      </ul>
+    <nav className="bg-red-600 p-2 flex justify-center space-x-4">
+      <button
+        onClick={() => {
+          setCurrentView('games');
+        }}
+        className={`cursor-pointer text-white font-bold text-lg px-4 py-2 rounded border-2 ${
+          currentView === 'games' ? 'bg-blue-600' : 'bg-black'
+        } hover:bg-blue-500`}
+      >
+        Lista de Juegos
+      </button>
+      <button
+        onClick={() => {
+          setCurrentView('wishlist');
+        }}
+        className={`cursor-pointer text-white font-bold text-lg px-4 py-2 rounded border-2 ${
+          currentView === 'wishlist' ? 'bg-blue-600' : 'bg-black'
+        } hover:bg-blue-500`}
+      >
+        Lista de Deseados
+      </button>
     </nav>
   );
 };

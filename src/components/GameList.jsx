@@ -1,7 +1,6 @@
-// src/components/GameList.jsx
 import React from 'react';
 
-const GameList = ({ games, addToWishlist, removeFromWishlist }) => {
+const GameList = ({ games, addToWishlist, removeFromWishlist, onGameClick }) => {
   return (
     <div className="bg-gray-900 min-h-screen text-white p-8">
       <h2 className="text-3xl font-semibold mb-6 text-center text-gray-100">Lista de Juegos</h2>
@@ -21,7 +20,13 @@ const GameList = ({ games, addToWishlist, removeFromWishlist }) => {
                   />
                 )}
                 <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent text-white p-4">
-                  <h3 className="text-xl font-semibold truncate">{game.name}</h3>
+                  {/* Clic para ver detalles del juego */}
+                  <h3
+                    className="text-xl font-semibold truncate cursor-pointer"
+                    onClick={() => onGameClick(game)}
+                  >
+                    {game.name}
+                  </h3>
                 </div>
               </div>
               <div className="p-4 space-y-2">
