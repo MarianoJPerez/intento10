@@ -4,7 +4,7 @@ import GameList from './components/GameList';
 import Wishlist from './components/Wishlist';
 import Navbar from './components/Navbar';
 import Header from './components/Header';
-import GameDetail from './components/GameDetail'; // Asegúrate de importar GameDetail
+import GameDetail from './components/GameDetail';
 import axios from 'axios';
 import './styles.css';
 
@@ -16,13 +16,22 @@ const App = () => {
   const [selectedGame, setSelectedGame] = useState(null);
 
 
+
+  // Recuperar usuario de localStorage si está presente al cargar la aplicación
+  useEffect(() => {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser)); // Si el usuario está en localStorage, lo carga
+    }
+  }, []);
+
   // Fetch de la API para obtener los juegos
   useEffect(() => {
     const fetchGames = async () => {
-      const page = 1; // Número de página
-      const pageSize = 40; // Cantidad de juegos por página
+      const page = 1;
+      const pageSize = 40;
       try {
-        const response = await axios.get(`https://api.rawg.io/api/games?key=0b6043ca10304ceb8d5fa64a76a75965&page=${page}&page_size=${pageSize}`);    //ACA SE MODIFICA EL NUMERO DE PAGINA Y CANTIDAD DE JUEGOS
+        const response = await axios.get(`https://api.rawg.io/api/games?key=0b6043ca10304ceb8d5fa64a76a75965&page=${page}&page_size=${pageSize}`);
         setGames(response.data.results);
         setLoading(false);
       } catch (error) {
@@ -34,41 +43,57 @@ const App = () => {
     fetchGames();
   }, []);
 
-  // Función para eliminar un juego de la lista de juegos
-  const removeGameFromStore = (gameToRemove) => {
-    setGames((prevGames) => prevGames.filter((game) => game.id !== gameToRemove.id));
-  };
-
-  const addToWishlist = (game) => {
-    if (currentUser) {
-      const updatedWishlist = [...currentUser.wishlist, game];
-      setCurrentUser({ ...currentUser, wishlist: updatedWishlist });
-    }
-  };
-
-  const removeFromWishlist = (game) => {
-    if (currentUser) {
-      const updatedWishlist = currentUser.wishlist.filter((g) => g.id !== game.id);
-      setCurrentUser({ ...currentUser, wishlist: updatedWishlist });
-    }
-  };
-
   const handleLogout = () => {
     setCurrentUser(null); // Restablecer el estado del usuario
     localStorage.removeItem('user'); // Eliminar los datos del usuario en localStorage
   };
 
-  // Función para manejar el clic en un juego
   const handleGameClick = (game) => {
     setSelectedGame(game);
     setCurrentView('gameDetail');
   };
 
-  // Función para volver a la lista de deseados
   const handleBackToGames = () => {
-    setCurrentView('games'); // Regresa a la vista de JUEGOS
-    setSelectedGame(null); // Restablece el juego seleccionado
+    setCurrentView('games');
+    setSelectedGame(null);
   };
+
+  const handleBackToWishlist = () => {
+    setCurrentView('wishlist');
+    setSelectedGame(null);  // Limpiar juego seleccionado cuando se navega a Wishlist
+  };
+
+  const addToWishlist = (game) => {
+    // Asegúrate de que currentUser esté disponible
+    if (currentUser) {
+      // Actualiza la wishlist del usuario
+      const updatedUser = {
+        ...currentUser,
+        wishlist: [...currentUser.wishlist, game],
+      };
+  
+      setCurrentUser(updatedUser); // Actualiza el estado de currentUser
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));// También puedes guardar la wishlist en localStorage o en tu backend si lo necesitas
+    }
+  };
+
+  const removeFromWishlist = (gameToRemove) => {
+    if (currentUser) {
+      // Filtrar el juego que se va a eliminar de la wishlist
+      const updatedWishlist = currentUser.wishlist.filter((game) => game.id !== gameToRemove.id);
+      
+      // Actualizar el estado de currentUser
+      const updatedUser = {
+        ...currentUser,
+        wishlist: updatedWishlist,
+      };
+  
+      setCurrentUser(updatedUser); // Actualizar el estado de currentUser
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));// También puedes guardar la nueva wishlist en localStorage o en tu backend si lo necesitas
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen text-white">
@@ -76,8 +101,16 @@ const App = () => {
         <LoginWithCarouselAPI setCurrentUser={setCurrentUser} />
       ) : (
         <div>
-          <Header currentUser={currentUser} handleLogout={handleLogout} />
-          <Navbar currentView={currentView} setCurrentView={setCurrentView} />
+          <Header 
+          currentUser={currentUser} 
+          handleLogout={handleLogout} />
+          <Navbar
+            currentView={currentView}
+            setCurrentView={setCurrentView}
+            setSelectedGame={setSelectedGame}
+            handleBackToGames={handleBackToGames}
+            handleBackToWishlist={handleBackToWishlist}
+          />
           {loading ? (
             <p className="text-center">Cargando juegos...</p>
           ) : (
@@ -86,26 +119,24 @@ const App = () => {
                 <GameList
                   games={games}
                   addToWishlist={addToWishlist}
-                  removeFromWishlist={removeFromWishlist}
+                  removeFromWishlist={() => {}}
                   onGameClick={handleGameClick}
                   currentUser={currentUser}
-                  removeGameFromStore={removeGameFromStore}
-                  
+                  removeGameFromStore={() => {}}
                 />
               )}
               {currentView === 'wishlist' && (
-                <Wishlist 
-                currentUser={currentUser} 
-                removeFromWishlist={removeFromWishlist} 
-                setSelectedGame={handleGameClick}
+                <Wishlist
+                  currentUser={currentUser}
+                  removeFromWishlist={removeFromWishlist}
+                  setSelectedGame={handleGameClick}
                 />
               )}
-              
-              {selectedGame && (
-              <GameDetail 
-              game={selectedGame} // Muestra el detalle del juego cuando se selecciona uno
-              setCurrentView={handleBackToGames} // Usamos esta nueva función para volver a la lista de deseados
-              /> 
+              {currentView === 'gameDetail' && selectedGame && (
+                <GameDetail
+                  game={selectedGame}
+                  setCurrentView={handleBackToGames}
+                />
               )}
             </>
           )}
