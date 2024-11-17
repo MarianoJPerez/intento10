@@ -31,11 +31,11 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prevSlide) => (prevSlide + 1) % games.length);
+      setCurrentSlide((prevSlide) => (prevSlide + 1) % 10); // Aquí se asegura que vuelva a 0 después de 10
     }, 3000);
-
+  
     return () => clearInterval(interval);
-  }, [games.length]);
+  }, []); // Aquí no dependemos de `games.length`, solo del número visible de juegos (10)
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -111,7 +111,7 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
         className="flex transition-transform duration-500"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
-        {games.slice(0, 5).map((game) => (
+        {games.slice(0, 10).map((game) => (
           <div key={game.id} className="w-full flex-shrink-0 p-6 text-center">
             <img
               src={game.background_image}
