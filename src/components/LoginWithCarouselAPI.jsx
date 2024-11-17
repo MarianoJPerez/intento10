@@ -31,7 +31,9 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    const user = { username, password, wishlist: [] };
+    const userRole = username === 'admin' ? 'admin' : 'user';
+
+    const user = { username, password, wishlist: [], role: userRole };
     if (username && password) {
       setCurrentUser(user);
       setError('');
@@ -108,7 +110,7 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
         ))}
       </div>
     ) : (
-      <p>Cargando ofertas...</p>
+      <p>Cargando juegos...</p>
     )}
   </div>
 </div>

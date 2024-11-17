@@ -1,6 +1,6 @@
 import React from 'react';
 
-const GameList = ({ games, addToWishlist, removeFromWishlist, onGameClick }) => {
+const GameList = ({ games, addToWishlist, removeFromWishlist, onGameClick, currentUser }) => {
   return (
     <div className="bg-gray-900 min-h-screen text-white p-8">
       <h2 className="text-3xl font-semibold mb-6 text-center text-gray-100">Lista de Juegos</h2>
@@ -41,18 +41,26 @@ const GameList = ({ games, addToWishlist, removeFromWishlist, onGameClick }) => 
                   <strong>Metacritic:</strong> {game.metacritic}
                 </p>
                 <div className="flex justify-between mt-4">
-                  <button
-                    onClick={() => addToWishlist(game)}
+                <button
+                    onClick={() => {
+                      // Verifica si el juego ya está en la lista de deseados
+                      if (!currentUser?.wishlist.some((g) => g.id === game.id)) {
+                        addToWishlist(game); // Solo agrega si no está en la lista
+                      }
+                    }}
                     className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
                   >
                     Agregar a Deseados
                   </button>
-                  <button
-                    onClick={() => removeFromWishlist(game)}
-                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-                  >
-                    Eliminar
-                  </button>
+                  {/* Solo permitir eliminar si el usuario es admin */}
+                  {currentUser?.role === 'admin' && (
+                    <button
+                      onClick={() => removeFromWishlist(game)}
+                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -66,3 +74,4 @@ const GameList = ({ games, addToWishlist, removeFromWishlist, onGameClick }) => 
 };
 
 export default GameList;
+

@@ -15,6 +15,7 @@ const App = () => {
   const [currentView, setCurrentView] = useState('games');
   const [selectedGame, setSelectedGame] = useState(null);
 
+
   // Fetch de la API para obtener los juegos
   useEffect(() => {
     const fetchGames = async () => {
@@ -73,6 +74,7 @@ const App = () => {
                   addToWishlist={addToWishlist}
                   removeFromWishlist={removeFromWishlist}
                   onGameClick={handleGameClick}
+                  currentUser={currentUser}
                 />
               )}
               {currentView === 'wishlist' && (
