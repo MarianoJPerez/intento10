@@ -7,7 +7,7 @@ import Header from './components/Header';
 import GameDetail from './components/GameDetail';
 import axios from 'axios';
 import './styles.css';
-
+import NotFound from './components/Notfound';
 const App = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [games, setGames] = useState([]);
@@ -110,9 +110,7 @@ const App = () => {
         <LoginWithCarouselAPI setCurrentUser={setCurrentUser} />
       ) : (
         <div>
-          <Header 
-          currentUser={currentUser} 
-          handleLogout={handleLogout} />
+          <Header currentUser={currentUser} handleLogout={handleLogout} />
           <Navbar
             currentView={currentView}
             setCurrentView={setCurrentView}
@@ -147,12 +145,17 @@ const App = () => {
                   setCurrentView={handleBackToGames}
                 />
               )}
+              {/* Si ninguna vista coincide, muestra la página 404 */}
+              {!['games', 'wishlist', 'gameDetail'].includes(currentView) && (
+                <NotFound />
+              )}
             </>
           )}
         </div>
       )}
     </div>
   );
+  
 };
 
 export default App;
