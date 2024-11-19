@@ -2,7 +2,7 @@ import React from 'react';
 
 const Wishlist = ({ currentUser, removeFromWishlist, setSelectedGame }) => {
   const handleGameClick = (game) => {
-    setSelectedGame(game); // Establece el juego seleccionado
+    setSelectedGame(game);
   };
 
   return (
@@ -26,14 +26,14 @@ const Wishlist = ({ currentUser, removeFromWishlist, setSelectedGame }) => {
               <div className="flex-1">
                 {/* Clic en el nombre del juego para ir al detalle */}
                 <h3
-                  onClick={() => handleGameClick(game)} // Cambia el juego seleccionado
+                  onClick={() => handleGameClick(game)}
                   className="text-xl font-semibold text-blue-400 cursor-pointer"
                 >
                   {game.name}
                 </h3>
               </div>
               <button
-                onClick={() => removeFromWishlist(game)} // Elimina el juego de la lista
+                onClick={() => removeFromWishlist(game)}
                 className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
               >
                 Eliminar de la Lista de Deseados

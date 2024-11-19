@@ -8,7 +8,7 @@ const GameDetail = ({ game}) => {
 
       <h2 className="text-4xl font-bold mb-4">{game.name}</h2>
 
-      {/* Mostrar imagen de fondo */}
+      {/*img*/}
       {game.background_image && (
         <img
           src={game.background_image}
@@ -17,7 +17,7 @@ const GameDetail = ({ game}) => {
         />
       )}
 
-      {/* Información adicional */}
+      {/*informacion*/}
       <div className="space-y-4">
         <p className="text-gray-300">
           <strong>Géneros:</strong> {game.genres?.map((genre) => genre.name).join(', ')}
@@ -32,7 +32,7 @@ const GameDetail = ({ game}) => {
           <strong>Fecha de lanzamiento:</strong> {game.released}
         </p>
 
-        {/* Mostrar las capturas de pantalla */}
+        {/*capturas de pantalla*/}
         {game.short_screenshots && game.short_screenshots.length > 0 && (
           <div>
             <h3 className="text-xl font-semibold mb-2">Capturas de Pantalla</h3>
@@ -49,7 +49,7 @@ const GameDetail = ({ game}) => {
           </div>
         )}
 
-        {/* Mostrar tiendas */}
+        {/*tiendas*/}
         {game.stores && game.stores.length > 0 && (
           <div>
             <h3 className="text-xl font-semibold mb-2">Disponible en:</h3>
@@ -64,7 +64,7 @@ const GameDetail = ({ game}) => {
           </div>
         )}
 
-        {/* Mostrar etiquetas */}
+        {/*etiquetas*/}
         {game.tags && game.tags.length > 0 && (
           <div>
             <h3 className="text-xl font-semibold mb-2">Etiquetas:</h3>

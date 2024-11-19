@@ -12,7 +12,7 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem('user'));
     if (savedUser) {
-      setCurrentUser(savedUser); // Restaura el usuario desde localStorage
+      setCurrentUser(savedUser);
     }
   }, [setCurrentUser]);
 
@@ -31,25 +31,26 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prevSlide) => (prevSlide + 1) % 10); // Aquí se asegura que vuelva a 0 después de 10
+      setCurrentSlide((prevSlide) => (prevSlide + 1) % 10);
     }, 3000);
   
     return () => clearInterval(interval);
-  }, []); // Aquí no dependemos de `games.length`, solo del número visible de juegos (10)
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
-
+  
     const user = users.find(
       (u) => u.username === username && u.password === password
     );
-
+  
     if (user) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+  
       setCurrentUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      setError('');
+  
     } else {
-      setError('Credenciales incorrectas');
+      alert('Usuario o contraseña incorrectos');
     }
   };
 
