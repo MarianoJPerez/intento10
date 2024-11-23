@@ -33,16 +33,34 @@ const App = () => {
       const pageSize = 40;
       try {
         const response = await axios.get(`https://api.rawg.io/api/games?key=0b6043ca10304ceb8d5fa64a76a75965&page=${page}&page_size=${pageSize}`);
-        setGames(response.data.results);
+        const fetchedGames = response.data.results;
+        
+        // Guardamos los juegos en localStorage
+        localStorage.setItem('games', JSON.stringify(fetchedGames));
+        
+        // Verificar los juegos
+        console.log('Juegos obtenidos de la API:', fetchedGames);
+        
+        setGames(fetchedGames);
         setLoading(false);
       } catch (error) {
         console.error('Error al obtener juegos:', error);
         setLoading(false);
       }
     };
-
-    fetchGames();
+  
+    // Intentamos cargar los juegos desde localStorage primero
+    const storedGames = JSON.parse(localStorage.getItem('games'));
+    if (storedGames) {
+      console.log('Juegos cargados desde localStorage:', storedGames);
+      setGames(storedGames);
+      setLoading(false);
+    } else {
+      fetchGames(); // Si no hay juegos en localStorage, hacemos la petición a la API
+    }
   }, []);
+  
+
 
   const handleLogout = () => {
     if (currentUser && currentUser.wishlist?.length > 0) {
