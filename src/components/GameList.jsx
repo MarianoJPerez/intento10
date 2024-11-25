@@ -44,15 +44,13 @@ useEffect(() => {
 
   //cargo el carrito desde localStorage al iniciar
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    setCart(storedCart);
-  }, []);
-
-  //cargo la biblioteca desde localStorage al iniciar
-  useEffect(() => {
-    const storedLibrary = JSON.parse(localStorage.getItem('library')) || [];
-    setLibrary(storedLibrary);
-  }, []);
+    if (currentUser) {
+      const storedCart = JSON.parse(localStorage.getItem(`cart_${currentUser.username}`)) || [];
+      const storedLibrary = JSON.parse(localStorage.getItem(`library_${currentUser.username}`)) || [];
+      setCart(storedCart);
+      setLibrary(storedLibrary);
+    }
+  }, [currentUser]);
 
   //modal y confirmar eliminacion
   const closeModal = () => {
@@ -104,6 +102,12 @@ useEffect(() => {
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem(`cart_${currentUser.username}`, JSON.stringify(cart));
+      localStorage.setItem(`library_${currentUser.username}`, JSON.stringify(library));
+    }
+  }, [cart, library, currentUser]);
 
 //comprar juego
 const acquireGame = (game) => {
@@ -111,9 +115,7 @@ const acquireGame = (game) => {
   removeFromCart(game);
   const updatedLibrary = [...library, game];
   setLibrary(updatedLibrary);
-  localStorage.setItem('library', JSON.stringify(updatedLibrary));
 };
-
  // Agregar nuevo juego (esto actualizará localGames)
  const handleAddGame = (game) => {
   const isGameInList = localGames.some(existingGame => existingGame.id === game.id);
