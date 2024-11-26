@@ -5,7 +5,7 @@ const AddGames = ({ games, removedGames, onAddGame, goBack }) => {
     const [selectedGame, setSelectedGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
   
-    // API
+    //api
     useEffect(() => {
       const fetchGames = async () => {
         try {

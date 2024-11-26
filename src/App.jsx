@@ -10,24 +10,26 @@ import "./styles.css";
 import NotFound from "./components/Notfound";
 
 const App = () => {
-  const [currentUser, setCurrentUser] = useState(null); // Usuario actual
-  const [games, setGames] = useState([]); // Lista de juegos
-  const [loading, setLoading] = useState(true); // Indicador de carga
-  const [currentView, setCurrentView] = useState("games"); // Vista actual
-  const [selectedGame, setSelectedGame] = useState(null); // Juego seleccionado para detalles
-  const [cart, setCart] = useState([]); // Carrito del usuario actual
+  const [currentUser, setCurrentUser] = useState(null);
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState("games");
+  const [selectedGame, setSelectedGame] = useState(null); 
+  const [cart, setCart] = useState([]); 
   const [library, setLibrary] = useState([]);
-  // Recuperar usuario, carrito, lista de deseos y biblioteca al cargar la aplicación
+
+
+  //Recuperamos los datos
   const getLocalStorageData = (key) => {
     try {
       const data = localStorage.getItem(key);
       if (data === "undefined" || data === null) {
-        return null; // Si el valor es "undefined" o null, retorna null.
+        return null;
       }
-      return JSON.parse(data); // Intenta parsear si el valor es válido.
+      return JSON.parse(data);
     } catch (error) {
       console.error(`Error parsing localStorage key "${key}":`, error);
-      return null; // Retorna null si ocurre un error.
+      return null;
     }
   };
   
@@ -35,34 +37,32 @@ const App = () => {
   useEffect(() => {
     const storedUser = getLocalStorageData("currentUser");
     if (storedUser) {
-      // Cargar wishlist, biblioteca y carrito específicos del usuario
       const storedWishlist = getLocalStorageData(`wishlist_${storedUser.username}`) || [];
       const storedLibrary = getLocalStorageData(`library_${storedUser.username}`) || [];
       const storedCart = getLocalStorageData(`cart_${storedUser.username}`) || [];
   
-      // Sincronizar el estado solo para el usuario actual
+
       setCurrentUser({
         ...storedUser,
         wishlist: storedWishlist,
       });
-      setLibrary(storedLibrary); // Biblioteca específica
-      setCart(storedCart);       // Carrito específico
+      setLibrary(storedLibrary);
+      setCart(storedCart);
     } else {
-      // Si no hay usuario almacenado, limpiar el estado
       setCurrentUser(null);
       setLibrary([]);
       setCart([]);
     }
   }, []);
+
+
   useEffect(() => {
     if (currentUser) {
-      // Guardar datos específicos del usuario actual en localStorage
+
       localStorage.setItem(
         `wishlist_${currentUser.username}`,
         JSON.stringify(currentUser.wishlist || [])
       );
-  
-      // Guardar biblioteca y carrito solo si no es administrador
       if (currentUser.role !== "admin") {
         localStorage.setItem(
           `library_${currentUser.username}`,
@@ -76,9 +76,8 @@ const App = () => {
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
     }
   }, [currentUser, library, cart]);
-  // Sincronizar cambios del usuario, carrito y biblioteca con localStorage
 
-  // Fetch de la API para obtener los juegos
+  //Obtener los juegos de la api
   useEffect(() => {
     const fetchGames = async () => {
       const page = 1;
@@ -89,7 +88,6 @@ const App = () => {
         );
         const fetchedGames = response.data.results;
 
-        // Guardamos los juegos en localStorage
         localStorage.setItem("games", JSON.stringify(fetchedGames));
         setGames(fetchedGames);
         setLoading(false);
@@ -99,7 +97,7 @@ const App = () => {
       }
     };
 
-    // Intentamos cargar los juegos desde localStorage primero
+
     const storedGames = JSON.parse(localStorage.getItem("games"));
     if (storedGames) {
       setGames(storedGames);
@@ -109,10 +107,9 @@ const App = () => {
     }
   }, []);
 
-  // Logout del usuario
+  //Logout
   const handleLogout = () => {
     if (currentUser) {
-      // Guardar los datos del usuario antes de limpiar
       localStorage.setItem(
         `wishlist_${currentUser.username}`,
         JSON.stringify(currentUser.wishlist || [])
@@ -126,34 +123,29 @@ const App = () => {
         JSON.stringify(cart || [])
       );
   
-      // Limpiar estados y localStorage del usuario activo
       setCurrentUser(null);
   
-      localStorage.removeItem("currentUser"); // Eliminar usuario actual
+      localStorage.removeItem("currentUser");
       alert("Sesión cerrada correctamente.");
     }
   };
   
 
-  // Manejar cambio de vista a detalles de un juego
   const handleGameClick = (game) => {
     setSelectedGame(game);
     setCurrentView("gameDetail");
   };
 
-  // Volver a la vista de juegos
   const handleBackToGames = () => {
     setCurrentView("games");
     setSelectedGame(null);
   };
 
-  // Volver a la lista de deseos
   const handleBackToWishlist = () => {
     setCurrentView("wishlist");
     setSelectedGame(null);
   };
 
-  // Agregar un juego a la lista de deseos
   const addToWishlist = (game) => {
     if (currentUser) {
       const updatedWishlist = [...(currentUser.wishlist || []), game];
@@ -162,7 +154,6 @@ const App = () => {
     }
   };
 
-  // Eliminar un juego de la lista de deseos
   const removeFromWishlist = (gameToRemove) => {
     if (currentUser) {
       const updatedWishlist = currentUser.wishlist.filter(
@@ -173,28 +164,22 @@ const App = () => {
     }
   };
 
-  // Agregar un juego al carrito
   const addToCart = (game) => {
     if (cart.some((g) => g.id === game.id)) return;
     setCart([...cart, { ...game }]);
   };
 
-  // Eliminar un juego del carrito
   const removeFromCart = (gameToRemove) => {
     setCart(cart.filter((game) => game.id !== gameToRemove.id));
   };
 
-  // Mover juegos del carrito a la biblioteca
   const purchaseCart = () => {
     if (currentUser) {
-      // Combina los juegos del carrito con la biblioteca actual
       const updatedLibrary = [...library, ...cart];
   
-      // Actualiza el estado de la biblioteca y limpia el carrito
       setLibrary(updatedLibrary);
       setCart([]);
   
-      // Guarda los datos actualizados en localStorage
       localStorage.setItem(
         `library_${currentUser.username}`,
         JSON.stringify(updatedLibrary)
@@ -232,15 +217,15 @@ const App = () => {
                 <GameList
                 games={games}
                 currentUser={currentUser}
-                cart={cart} // Pasa el estado del carrito
-                setCart={setCart} // Pasa la función para actualizar el carrito
+                cart={cart}
+                setCart={setCart}
                 library={library}
                 setLibrary={setLibrary}
               
                 addToWishlist={addToWishlist}
                 removeFromWishlist={removeFromWishlist}
                   purchaseCart={purchaseCart}
-                  onGameClick={handleGameClick} // Pasar la función aquí
+                  onGameClick={handleGameClick}
                 />
               )}
               {currentView === "wishlist" && (

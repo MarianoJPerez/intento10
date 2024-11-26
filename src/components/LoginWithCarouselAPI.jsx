@@ -33,25 +33,21 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Manejar el inicio de sesión
+  //Login
   const handleLogin = (e) => {
     e.preventDefault();
 
-    // Validar usuario y contraseña contra los usuarios hardcodeados
     const user = users.find(
       (u) => u.username === username && u.password === password
     );
 
     if (user) {
-      // Recuperar o inicializar la lista de deseados del usuario
       const storedWishlist =
         JSON.parse(localStorage.getItem(`wishlist_${user.username}`)) || [];
       const currentUserData = { ...user, wishlist: storedWishlist };
 
-      // Guardar usuario en localStorage
       localStorage.setItem("currentUser", JSON.stringify(currentUserData));
 
-      // Establecer usuario actual en el estado global
       setCurrentUser(currentUserData);
     } else {
       setError("Usuario o contraseña incorrectos");
