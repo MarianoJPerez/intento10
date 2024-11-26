@@ -55,12 +55,27 @@ const App = () => {
     }
   }, []);
   useEffect(() => {
-    if (currentUser?.role === "admin") {
-      // Para el administrador, limpia datos específicos de usuario
-      setLibrary([]);
-      setCart([]);
+    if (currentUser) {
+      // Guardar datos específicos del usuario actual en localStorage
+      localStorage.setItem(
+        `wishlist_${currentUser.username}`,
+        JSON.stringify(currentUser.wishlist || [])
+      );
+  
+      // Guardar biblioteca y carrito solo si no es administrador
+      if (currentUser.role !== "admin") {
+        localStorage.setItem(
+          `library_${currentUser.username}`,
+          JSON.stringify(library || [])
+        );
+        localStorage.setItem(
+          `cart_${currentUser.username}`,
+          JSON.stringify(cart || [])
+        );
+      }
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
     }
-  }, [currentUser]);
+  }, [currentUser, library, cart]);
   // Sincronizar cambios del usuario, carrito y biblioteca con localStorage
 
   // Fetch de la API para obtener los juegos
