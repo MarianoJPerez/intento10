@@ -240,6 +240,7 @@ const App = () => {
                 addToWishlist={addToWishlist}
                 removeFromWishlist={removeFromWishlist}
                   purchaseCart={purchaseCart}
+                  onGameClick={handleGameClick} // Pasar la función aquí
                 />
               )}
               {currentView === "wishlist" && (
