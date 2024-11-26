@@ -87,7 +87,7 @@ const App = () => {
     }
   }, []);
 
-  // Manejar logout del usuario
+  // logout del usuario
   const handleLogout = () => {
     if (currentUser) {
       // Guardar la lista de deseos, biblioteca y carrito antes de salir, solo si existen
@@ -161,7 +161,7 @@ const App = () => {
 
   // Agregar un juego al carrito
   const addToCart = (game) => {
-    // Verificar que no esté duplicado
+   
     if (cart.some((g) => g.id === game.id)) return;
 
     setCart([...cart, { ...game }]);
@@ -172,14 +172,14 @@ const App = () => {
     setCart(cart.filter((game) => game.id !== gameToRemove.id));
   };
 
-  // Comprar juegos del carrito (mover a biblioteca)
+  // mover a biblioteca
   const purchaseCart = () => {
     if (currentUser) {
       const updatedLibrary = [...(currentUser.library || []), ...cart];
       const updatedUser = { ...currentUser, library: updatedLibrary };
 
       setCurrentUser(updatedUser);
-      setCart([]); // Vaciar carrito después de la compra
+      setCart([]); 
     }
   };
 

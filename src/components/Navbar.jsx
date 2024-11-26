@@ -25,15 +25,7 @@ const Navbar = ({ currentView, setCurrentView, setSelectedGame}) => {
       >
         Lista de Deseados
       </button>
-      <button
-  onClick={() => {
-    setCurrentView('unknown');
-    setSelectedGame(null);
-  }}
-  className="cursor-pointer text-white font-bold text-lg px-4 py-2 rounded border-2 bg-black hover:bg-blue-500"
->
-  Vista Desconocida
-</button>
+     
     </nav>
   );
 };

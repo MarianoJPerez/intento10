@@ -5,7 +5,7 @@ const AddGames = ({ games, removedGames, onAddGame, goBack }) => {
     const [selectedGame, setSelectedGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
   
-    // Cargar juegos desde la API
+    // API
     useEffect(() => {
       const fetchGames = async () => {
         try {
@@ -42,9 +42,9 @@ const AddGames = ({ games, removedGames, onAddGame, goBack }) => {
   
     const confirmAddGame = () => {
       if (selectedGame) {
-        onAddGame(selectedGame); // Llamar a la función que actualiza el estado en GameList
+        onAddGame(selectedGame); 
         closeModal();
-        goBack(); // Volver a la lista
+        goBack(); 
       }
     };
   

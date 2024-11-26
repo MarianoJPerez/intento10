@@ -9,7 +9,7 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
   const [games, setGames] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Recuperar la lista de juegos para el carrusel
+
   useEffect(() => {
     const fetchGames = async () => {
       try {
@@ -25,7 +25,6 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
     fetchGames();
   }, []);
 
-  // Manejar el carrusel para que pase automáticamente cada 3 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % 10);

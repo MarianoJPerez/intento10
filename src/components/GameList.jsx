@@ -19,26 +19,26 @@ const GameList = ({
   const [cart, setCart] = useState([]);
   const [library, setLibrary] = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const [currentView, setCurrentView] = useState('list'); // 'list' o 'add'
+  const [currentView, setCurrentView] = useState('list');
 
 
 
-// useEffect para cargar juegos desde la API y almacenarlos en localStorage
+
 useEffect(() => {
   const storedLocalGames = JSON.parse(localStorage.getItem('localGames'));
 
   if (!storedLocalGames || storedLocalGames.length === 0) {
-    // Asegúrate de que 'games' tenga los datos actualizados de la API
+ 
     const fetchedGames = games;
     localStorage.setItem('localGames', JSON.stringify(fetchedGames));
     setLocalGames(fetchedGames);
   } else {
     setLocalGames(storedLocalGames);
   }
-}, [games]); // Asegúrate de que games esté actualizado
+}, [games]); 
 
 
-  //cargo los juegos eliminados desde localStorage al iniciar
+  
   useEffect(() => {
     const storedRemovedGames = JSON.parse(localStorage.getItem('removedGames')) || [];
     setRemovedGames(storedRemovedGames);
@@ -46,7 +46,7 @@ useEffect(() => {
 
   useEffect(() => {
     if (currentUser && currentUser.username) {
-      // Cargar carrito, biblioteca y lista de deseados del localStorage
+   
       const storedCart = JSON.parse(localStorage.getItem(`cart_${currentUser.username}`)) || [];
       const storedLibrary = JSON.parse(localStorage.getItem(`library_${currentUser.username}`)) || [];
       const storedWishlist = JSON.parse(localStorage.getItem(`wishlist_${currentUser.username}`)) || [];
@@ -55,10 +55,10 @@ useEffect(() => {
       setLibrary(storedLibrary);
       setWishlist(storedWishlist);
     }
-  }, [currentUser]);  // Depende de currentUser para cargar los datos correctamente
+  }, [currentUser]);  
   
 
-  //modal y confirmar eliminacion
+ 
   const closeModal = () => {
     setIsModalOpen(false);
     setGameToRemove(null);
@@ -66,28 +66,28 @@ useEffect(() => {
 
   const confirmDelete = () => {
     if (gameToRemove) {
-      // Remover juego de localGames
+      
       const updatedLocalGames = localGames.filter((game) => game.id !== gameToRemove.id);
-      setLocalGames(updatedLocalGames); // Actualizamos el estado de localGames
-      localStorage.setItem('localGames', JSON.stringify(updatedLocalGames)); // Guardamos los cambios en localStorage
+      setLocalGames(updatedLocalGames); 
+      localStorage.setItem('localGames', JSON.stringify(updatedLocalGames)); 
   
-      // Añadir juego a la lista de juegos eliminados
+      
       const updatedRemovedGames = [...removedGames, gameToRemove];
-      setRemovedGames(updatedRemovedGames); // Actualizamos el estado de removedGames
-      localStorage.setItem('removedGames', JSON.stringify(updatedRemovedGames)); // Guardamos los cambios en localStorage
+      setRemovedGames(updatedRemovedGames); 
+      localStorage.setItem('removedGames', JSON.stringify(updatedRemovedGames)); 
   
-      // Cerrar el modal
+     
       closeModal();
     }
   };
 
-  //filtro los juegos eliminados
+ 
   const filteredGames = localGames.filter(
     (game) => !removedGames.some((removed) => removed.id === game.id)
   );
   
 
-  //agrego el juego al carrito
+ 
   const addToCart = (game) => {
     if (cart.some((cartGame) => cartGame.id === game.id)) {
       alert("Este juego ya está en el carrito.");
@@ -103,7 +103,7 @@ useEffect(() => {
     }
   };
 
-  //elimino juego del carrito
+  
   const removeFromCart = (game) => {
     const updatedCart = cart.filter((item) => item.id !== game.id);
     setCart(updatedCart);
@@ -115,25 +115,25 @@ useEffect(() => {
     }
   }, [cart, currentUser]);
 
-//comprar juego
+
 const acquireGame = (game) => {
   alert(`Juego "${game.name}" adquirido con éxito`);
   removeFromCart(game);
   const updatedLibrary = [...library, game];
   setLibrary(updatedLibrary);
 
-  // Guardar la biblioteca actualizada en localStorage
+  
   if (currentUser) {
     localStorage.setItem(`library_${currentUser.username}`, JSON.stringify(updatedLibrary));
   }
 };
- // Agregar nuevo juego (esto actualizará localGames)
+ 
  const handleAddGame = (game) => {
   const isGameInList = localGames.some(existingGame => existingGame.id === game.id);
   if (!isGameInList) {
     const updatedGames = [...localGames, game];
     setLocalGames(updatedGames);
-    localStorage.setItem('localGames', JSON.stringify(updatedGames)); // Actualiza localStorage
+    localStorage.setItem('localGames', JSON.stringify(updatedGames)); 
     alert('Juego agregado correctamente');
   } else {
     alert('El juego ya está en tu lista.');
@@ -162,8 +162,8 @@ const addToWishlistWithAlert = (game) => {
       <AddGames
         games={games}
         removedGames={removedGames}
-        onAddGame={handleAddGame}  // Usar la función handleAddGame para actualizar los juegos
-        goBack={() => setCurrentView('list')} // Volver a la vista de lista
+        onAddGame={handleAddGame}  
+        goBack={() => setCurrentView('list')} 
       />
     ) : (
       <div className="flex justify-between items-center mb-6">
