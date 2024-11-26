@@ -10,7 +10,10 @@ import "./styles.css";
 import NotFound from "./components/Notfound";
 
 const App = () => {
-  const [currentUser, setCurrentUser] = useState(null); // Usuario actual
+  const [currentUser, setCurrentUser] = useState({
+    wishlist: [],
+    library: [],
+  });
   const [games, setGames] = useState([]); // Lista de juegos
   const [loading, setLoading] = useState(true); // Indicador de carga
   const [currentView, setCurrentView] = useState("games"); // Vista actual
@@ -21,22 +24,18 @@ const App = () => {
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("currentUser"));
     if (storedUser) {
-      const storedWishlist = JSON.parse(
-        localStorage.getItem(`wishlist_${storedUser.username}`) || "[]"
-      );
-      const storedLibrary = JSON.parse(
-        localStorage.getItem(`library_${storedUser.username}`) || "[]"
-      );
-      const storedCart = JSON.parse(
-        localStorage.getItem(`cart_${storedUser.username}`) || "[]"
-      );
+      const storedWishlist = JSON.parse(localStorage.getItem(`wishlist_${storedUser.username}`)) || [];
+      const storedLibrary = JSON.parse(localStorage.getItem(`library_${storedUser.username}`)) || [];
+      const storedCart = JSON.parse(localStorage.getItem(`cart_${storedUser.username}`)) || [];
+  
       setCurrentUser({
         ...storedUser,
-        wishlist: [...storedWishlist],
-        library: [...storedLibrary],
+        wishlist: Array.isArray(storedWishlist) ? storedWishlist : [], // Asegura que sea un array
+        library: Array.isArray(storedLibrary) ? storedLibrary : [],   // Asegura que sea un array
       });
-      setCart([...storedCart]); // Inicializar carrito desde localStorage
+      setCart(Array.isArray(storedCart) ? storedCart : []); // Inicializa carrito como array
     }
+    
   }, []);
 
   // Sincronizar cambios del usuario, carrito y biblioteca con localStorage
@@ -45,13 +44,15 @@ const App = () => {
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
       localStorage.setItem(
         `wishlist_${currentUser.username}`,
-        JSON.stringify([...currentUser.wishlist])
+        JSON.stringify(currentUser.wishlist || [])
       );
       localStorage.setItem(
         `library_${currentUser.username}`,
-        JSON.stringify([...currentUser.library])
+        JSON.stringify(currentUser.library || [])
       );
-      localStorage.setItem(`cart_${currentUser.username}`, JSON.stringify([...cart]));
+      localStorage.setItem(
+        `cart_${currentUser.username}`,
+        JSON.stringify(cart || []));
     }
   }, [currentUser, cart]);
 
@@ -89,17 +90,30 @@ const App = () => {
   // Manejar logout del usuario
   const handleLogout = () => {
     if (currentUser) {
-      // Guardar la lista de deseos, biblioteca y carrito antes de salir
-      localStorage.setItem(
-        `wishlist_${currentUser.username}`,
-        JSON.stringify([...currentUser.wishlist])
-      );
-      localStorage.setItem(
-        `library_${currentUser.username}`,
-        JSON.stringify([...currentUser.library])
-      );
-      localStorage.setItem(`cart_${currentUser.username}`, JSON.stringify([...cart]));
+      // Guardar la lista de deseos, biblioteca y carrito antes de salir, solo si existen
+      if (currentUser.wishlist) {
+        localStorage.setItem(
+          `wishlist_${currentUser.username}`,
+          JSON.stringify([...currentUser.wishlist])
+        );
+      }
+  
+      if (currentUser.library) {
+        localStorage.setItem(
+          `library_${currentUser.username}`,
+          JSON.stringify([...currentUser.library])
+        );
+      }
+  
+      if (cart && cart.length > 0) {
+        localStorage.setItem(
+          `cart_${currentUser.username}`,
+          JSON.stringify([...cart])
+        );
+      }
     }
+  
+    // Restablecer el estado
     setCurrentUser(null);
     setCart([]); // Reiniciar carrito al cerrar sesión
     localStorage.removeItem("currentUser");

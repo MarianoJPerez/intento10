@@ -8,8 +8,8 @@ const GameList = ({
   onGameClick,
   currentUser,
   removeGameFromStore,
-  
 }) => {
+  const [storedUser, setCurrentUser] = useState([]);
   const [localGames, setLocalGames] = useState([]);
   const [removedGames, setRemovedGames] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,8 +18,10 @@ const GameList = ({
   const [showLibrary, setShowLibrary] = useState(false);
   const [cart, setCart] = useState([]);
   const [library, setLibrary] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const [currentView, setCurrentView] = useState('list'); // 'list' o 'add'
-  console.log('Juegos en GameList:', games);
+
+
 
 // useEffect para cargar juegos desde la API y almacenarlos en localStorage
 useEffect(() => {
@@ -42,15 +44,19 @@ useEffect(() => {
     setRemovedGames(storedRemovedGames);
   }, []);
 
-  //cargo el carrito desde localStorage al iniciar
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && currentUser.username) {
+      // Cargar carrito, biblioteca y lista de deseados del localStorage
       const storedCart = JSON.parse(localStorage.getItem(`cart_${currentUser.username}`)) || [];
       const storedLibrary = JSON.parse(localStorage.getItem(`library_${currentUser.username}`)) || [];
+      const storedWishlist = JSON.parse(localStorage.getItem(`wishlist_${currentUser.username}`)) || [];
+  
       setCart(storedCart);
       setLibrary(storedLibrary);
+      setWishlist(storedWishlist);
     }
-  }, [currentUser]);
+  }, [currentUser]);  // Depende de currentUser para cargar los datos correctamente
+  
 
   //modal y confirmar eliminacion
   const closeModal = () => {
@@ -83,8 +89,9 @@ useEffect(() => {
 
   //agrego el juego al carrito
   const addToCart = (game) => {
-    
-    if (!library.some((libGame) => libGame.id === game.id)) {
+    if (cart.some((cartGame) => cartGame.id === game.id)) {
+      alert("Este juego ya está en el carrito.");
+    } else if (!library.some((libGame) => libGame.id === game.id)) {
       const updatedCart = [...cart, game];
       setCart(updatedCart);
       localStorage.setItem('cart', JSON.stringify(updatedCart));
@@ -105,9 +112,8 @@ useEffect(() => {
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem(`cart_${currentUser.username}`, JSON.stringify(cart));
-      localStorage.setItem(`library_${currentUser.username}`, JSON.stringify(library));
     }
-  }, [cart, library, currentUser]);
+  }, [cart, currentUser]);
 
 //comprar juego
 const acquireGame = (game) => {
@@ -115,6 +121,11 @@ const acquireGame = (game) => {
   removeFromCart(game);
   const updatedLibrary = [...library, game];
   setLibrary(updatedLibrary);
+
+  // Guardar la biblioteca actualizada en localStorage
+  if (currentUser) {
+    localStorage.setItem(`library_${currentUser.username}`, JSON.stringify(updatedLibrary));
+  }
 };
  // Agregar nuevo juego (esto actualizará localGames)
  const handleAddGame = (game) => {
@@ -130,13 +141,15 @@ const acquireGame = (game) => {
 };
 
 const addToWishlistWithAlert = (game) => {
-    if (library.some((libGame) => libGame.id === game.id)) {
-      alert("Este juego ya está en tu biblioteca, no puedes agregarlo a deseados.");
-    } else {
-      addToWishlist(game);
-      alert("Se agregó a la lista de deseados correctamente");
-    }
-  };
+  if (library?.some((libGame) => libGame.id === game.id)) {
+    alert("Este juego ya está en tu biblioteca, no puedes agregarlo a deseados.");
+  } else if (currentUser.wishlist?.some((wishGame) => wishGame.id === game.id)) {
+    alert("Este juego ya está en tu lista de deseados.");
+  } else {
+    addToWishlist(game);
+    alert("Se agregó a la lista de deseados correctamente.");
+  }
+};
 
   const removeFromWishlistWithAlert = (game) => {
     removeFromWishlist(game);
@@ -291,25 +304,12 @@ library.map((game) => (
                   {game.platforms?.map((platform) => platform.platform.name).join(', ')}
                 </p>
                   <div className="flex flex-col gap-2 mt-4">
-
-                    {!currentUser?.wishlist.some((g) => g.id === game.id) && (
-                      <button
-                        onClick={() => addToWishlistWithAlert(game)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-                      >
-                        Agregar a deseados
-                      </button>
-                    )}
-
-
-                    {currentUser?.wishlist.some((g) => g.id === game.id) && (
-                      <button
-                        onClick={() => removeFromWishlistWithAlert(game)}
-                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-                      >
-                        Eliminar de deseados
-                      </button>
-                    )}
+                  <button
+                    onClick={() => addToWishlistWithAlert(game)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+                  >
+                    Agregar a deseados
+                  </button>
 
 
                     <button
