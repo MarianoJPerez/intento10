@@ -1,0 +1,54 @@
+
+/* src/styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+nav a, nav button {
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+.game-item, .wishlist-item {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.component {
+    margin-top: 20px;
+}
+
+/* src/App.css o un archivo CSS separado */
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  nav li {
+    color: white;
+    cursor: pointer;
+  }
+  
+  .banner-background {
+    background-image: url('http://localhost:5173/plataformasDesarrollo/infinity.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .side-column {
+    background-image: url('/plataformasDesarrollo/lateral.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .invert-image {
+    transform: scaleX(-1);
+  }
