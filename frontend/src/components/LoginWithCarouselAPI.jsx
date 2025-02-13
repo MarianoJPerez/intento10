@@ -150,53 +150,55 @@
    //ACA SEPARE EL FRONT DEL END EL COMIENZO DEL FIN, TOMI LLEGASTE AL INICIO DE LO QUE SERIA UNA GRAN AVENTURA, UN INICIO  Y EN EL QUE PUTO EL QUE LEA
 
    // frontend/components/LoginWithCarouselAPI.jsx
-import React, { useState } from 'react';
-import firebase from '../firebaseConfig';
-import axios from 'axios';
+   import React, { useState } from 'react';
+   import { auth } from '../../firebaseconfig';
 
-const LoginWithCarouselAPI = ({ setCurrentUser }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      // Autenticación con Firebase
-      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-      const user = userCredential.user;
-      // Obtener el ID token del usuario
-      const idToken = await user.getIdToken();
-      console.log("ID Token:", idToken); 
-      // Enviar el idToken al back‑end para crear la sesión (o para obtener información)
-      const response = await axios.post('http://localhost:3000/api/login', { idToken });
-      
-      // Opcional: Si el back‑end retorna información del usuario, guárdala
-      const userData = response.data;
-      setCurrentUser(userData);
-      console.log('Login exitoso, cookie de sesión creada.');
-    } catch (error) {
-      console.error("Error en el login:", error);
-      alert("Error al iniciar sesión. Verifica tus credenciales.");
-    }
-  };
-
-  return (
-    <form onSubmit={handleLogin}>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Contraseña"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Iniciar Sesión</button>
-    </form>
-  );
-};
-
-export default LoginWithCarouselAPI;
+   import { signInWithEmailAndPassword } from "firebase/auth";
+   import axios from 'axios';
+   
+   const LoginWithCarouselAPI = ({ setCurrentUser }) => {
+     const [email, setEmail] = useState('');
+     const [password, setPassword] = useState('');
+     
+     const handleLogin = async (e) => {
+      e.preventDefault();
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const idToken = await user.getIdToken();
+        
+        console.log("ID Token:", idToken);
+    
+        const response = await axios.post('http://localhost:3000/api/login', { idToken });
+        setCurrentUser(response.data);
+        
+        console.log('Login exitoso, cookie de sesión creada.');
+      } catch (error) {
+        console.error("Código de error:", error.code);
+        console.error("Mensaje de error:", error.message);
+        alert(`Error: ${error.message}`);
+      }
+    };
+    
+   
+     return (
+       <form onSubmit={handleLogin}>
+         <input
+           type="email"
+           placeholder="Email"
+           value={email}
+           onChange={(e) => setEmail(e.target.value)}
+         />
+         <input
+           type="password"
+           placeholder="Contraseña"
+           value={password}
+           onChange={(e) => setPassword(e.target.value)}
+         />
+         <button type="submit">Iniciar Sesión</button>
+       </form>
+     );
+   };
+   
+   export default LoginWithCarouselAPI;
+   
