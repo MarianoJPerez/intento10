@@ -24,7 +24,7 @@ const Wishlist = ({ currentUser, removeFromWishlist, setSelectedGame }) => {
                 />
               )}
               <div className="flex-1">
-                {/* Clic en el nombre del juego para ir al detalle */}
+         
                 <h3
                   onClick={() => handleGameClick(game)}
                   className="text-xl font-semibold text-blue-400 cursor-pointer"
