@@ -5,7 +5,7 @@ import Header from "./components/Header";
 import GameDetail from "./components/GameDetail";
 import axios from "axios";
 import "./styles.css";
-
+//hola
 const App = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [games, setGames] = useState([]);
