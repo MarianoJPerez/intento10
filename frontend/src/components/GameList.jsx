@@ -14,7 +14,11 @@ const GameList = ({
   library = [],
   setLibrary,
 }) => {
+  
   const [localGames, setLocalGames] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+
+
   const [removedGames, setRemovedGames] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [gameToRemove, setGameToRemove] = useState(null);
@@ -32,7 +36,15 @@ const GameList = ({
       setLocalGames(storedLocalGames);
     }
   }, [games]);
-
+  useEffect(() => {
+    if (currentUser) {
+      const storedWishlist = JSON.parse(localStorage.getItem(`wishlist_${currentUser.username}`)) || [];
+      setWishlist(storedWishlist);
+    }
+  }, [currentUser]);
+  
+  console.log("Wishlist actual:", wishlist); // Esto mostrará la lista en la consola para depuración.
+  
   useEffect(() => {
     if (currentUser) {
       const storedLibrary = JSON.parse(localStorage.getItem(`library_${currentUser.username}`)) || [];
@@ -101,17 +113,23 @@ const GameList = ({
   };
 
   const addToWishlistWithAlert = (game) => {
-    if (library?.some((libGame) => libGame.id === game.id)) {
+    if (library.some((libGame) => libGame.id === game.id)) {
       alert("Este juego ya está en tu biblioteca, no puedes agregarlo a deseados.");
-    } else if (currentUser.wishlist?.some((wishGame) => wishGame.id === game.id)) {
+    } else if (wishlist.some((wishGame) => wishGame.id === game.id)) {
       alert("Este juego ya está en tu lista de deseados.");
     } else {
-      addToWishlist(game);
+      const updatedWishlist = [...wishlist, game];
+      setWishlist(updatedWishlist);
+      localStorage.setItem(`wishlist_${currentUser.username}`, JSON.stringify(updatedWishlist));
       alert("Se agregó a la lista de deseados correctamente.");
     }
   };
+  
 
   const removeFromWishlistWithAlert = (game) => {
+    const updatedWishlist = wishlist.filter((wishGame) => wishGame.id !== game.id);
+    setWishlist(updatedWishlist);
+    localStorage.setItem(`wishlist_${currentUser.username}`, JSON.stringify(updatedWishlist));
     removeFromWishlist(game);
     alert("Se eliminó de la lista de deseados");
   };
@@ -143,150 +161,152 @@ const GameList = ({
                   Agregar Juegos
                 </button>
               )}
-              <button
-                onClick={() => {
-                  setShowCart(false);
-                  setShowLibrary(false);
-                }}
-                className="game-list-button"
-              >
-                Lista de Juegos
-              </button>
-              <button
-                onClick={() => {
-                  setShowCart(true);
-                  setShowLibrary(false);
-                }}
-                className="game-list-button"
-              >
-                Ver Carrito
-                
-              </button>
-              <button
-                onClick={() => {
-                  setShowCart(false);
-                  setShowLibrary(true);
-                }}
-                className="game-list-button"
-              >
-                Biblioteca
-              </button>
-            <button
-        onClick={() => {
-          setCurrentView('wishlist');
-          setSelectedGame(null);
-        }}
-        className="game-list-button"
-      >
-        Lista de Deseados
-      </button>
+             <button
+  onClick={() => setCurrentView('list')}
+  className="game-list-button"
+>
+  Lista de Juegos
+</button>
+
+<button
+  onClick={() => setCurrentView('wishlist')}
+  className="game-list-button"
+>
+  Lista de Deseados
+</button>
+
+<button
+  onClick={() => setCurrentView('cart')}
+  className="game-list-button"
+>
+  Ver Carrito
+</button>
+
+<button
+  onClick={() => setCurrentView('library')}
+  className="game-list-button"
+>
+  Biblioteca
+</button>
+
+
+
             </div>
 
             {currentView === 'list' && (
-              <>
-                {showCart && (
-                  <div className="game-card-grid">
-                    {cart.length > 0 ? (
-                      cart.map((game) => (
-                        <div key={game.id} className="game-card">
-                          <img src={game.background_image} alt={game.name} />
-                          <h3 className="game-card-title">{game.name}</h3>
-                          <p className="game-card-info">
-                            <strong>Géneros:</strong> {game.genres?.map((genre) => genre.name).join(", ")}
-                          </p>
-                          <div className="game-card-actions">
-                            <button
-                              onClick={() => removeFromCart(game)}
-                              className="game-list-button"
-                            >
-                              Eliminar
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p style={{ color: "#ccc", textAlign: "center" }}>
-                        Tu carrito está vacío.
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {showLibrary && (
-                  <div className="game-card-grid">
-                    {library.length > 0 ? (
-                      library.map((game) => (
-                        <div key={game.id} className="game-card">
-                          <img src={game.background_image} alt={game.name} />
-                          <h3 className="game-card-title">{game.name}</h3>
-                          <p className="game-card-info">
-                            <strong>Géneros:</strong> {game.genres?.map((genre) => genre.name).join(", ")}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p style={{ color: "#ccc", textAlign: "center" }}>
-                        Tu biblioteca está vacía.
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {!showCart && !showLibrary && (
-                  <div className="game-card-grid">
-                    {localGames.length > 0 ? (
-                      localGames.map((game) => (
-                        <div key={game.id} className="game-card">
-                          <img src={game.background_image} alt={game.name} />
-                          <h3
-                            className="game-card-title"
-                            onClick={() => onGameClick(game)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            {game.name}
-                          </h3>
-                          <p className="game-card-info">
-                            <strong>Géneros:</strong> {game.genres?.map((genre) => genre.name).join(", ")}
-                          </p>
-                          <p className="game-card-info">
-                            <strong>Plataformas:</strong> {game.platforms?.map((p) => p.platform.name).join(", ")}
-                          </p>
-                          <div className="game-card-actions">
-                            <button
-                              onClick={() => addToWishlistWithAlert(game)}
-                              className="game-list-button"
-                            >
-                              Agregar a deseados
-                            </button>
-                            <button
-                              onClick={() => addToCart(game)}
-                              className="game-list-button"
-                            >
-                              Agregar al Carrito
-                            </button>
-                            {currentUser?.role === "admin" && (
-                              <button
-                                onClick={() => {
-                                  setGameToRemove(game);
-                                  setIsModalOpen(true);
-                                }}
-                                className="game-list-button"
-                              >
-                                Eliminar
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p style={{ color: "#ccc", textAlign: "center" }}>
-                        No hay juegos disponibles.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </>
+  <div className="game-card-grid">
+    {localGames.length > 0 ? (
+      localGames.map((game) => (
+        <div key={game.id} className="game-card">
+          <img src={game.background_image} alt={game.name} />
+          <h3
+            className="game-card-title"
+            onClick={() => onGameClick(game)}
+            style={{ cursor: "pointer" }}
+          >
+            {game.name}
+          </h3>
+          <p className="game-card-info">
+            <strong>Géneros:</strong> {game.genres?.map((genre) => genre.name).join(", ")}
+          </p>
+          <p className="game-card-info">
+            <strong>Plataformas:</strong> {game.platforms?.map((p) => p.platform.name).join(", ")}
+          </p>
+          <div className="game-card-actions">
+            <button
+              onClick={() => addToWishlistWithAlert(game)}
+              className="game-list-button"
+            >
+              Agregar a Deseados
+            </button>
+            <button
+              onClick={() => addToCart(game)}
+              className="game-list-button"
+            >
+              Agregar al Carrito
+            </button>
+            {currentUser?.role === "admin" && (
+              <button
+                onClick={() => {
+                  setGameToRemove(game);
+                  setIsModalOpen(true);
+                }}
+                className="game-list-button"
+              >
+                Eliminar
+              </button>
             )}
+          </div>
+        </div>
+      ))
+    ) : (
+      <p style={{ color: "#ccc", textAlign: "center" }}>
+        No hay juegos disponibles.
+      </p>
+    )}
+  </div>
+)}
+
+{currentView === 'wishlist' && (
+  <div className="game-card-grid">
+    {wishlist.length > 0 ? (
+      wishlist.map((game) => (
+        <div key={game.id} className="game-card">
+          <img src={game.background_image} alt={game.name} />
+          <h3 className="game-card-title">{game.name}</h3>
+          <p className="game-card-info">
+            <strong>Géneros:</strong> {game.genres?.map((genre) => genre.name).join(", ")}
+          </p>
+          <button onClick={() => removeFromWishlistWithAlert(game)} className="game-list-button">
+            Eliminar de Deseados
+          </button>
+        </div>
+      ))
+    ) : (
+      <p style={{ color: "#ccc", textAlign: "center" }}>No hay juegos en tu lista de deseados.</p>
+    )}
+  </div>
+)}
+
+{currentView === 'cart' && (
+  <div className="game-card-grid">
+    {cart.length > 0 ? (
+      cart.map((game) => (
+        <div key={game.id} className="game-card">
+          <img src={game.background_image} alt={game.name} />
+          <h3 className="game-card-title">{game.name}</h3>
+          <p className="game-card-info">
+            <strong>Géneros:</strong> {game.genres?.map((genre) => genre.name).join(", ")}
+          </p>
+          <button onClick={() => removeFromCart(game)} className="game-list-button">
+            Eliminar del Carrito
+          </button>
+        </div>
+      ))
+    ) : (
+      <p style={{ color: "#ccc", textAlign: "center" }}>Tu carrito está vacío.</p>
+    )}
+  </div>
+)}
+
+{currentView === 'library' && (
+  <div className="game-card-grid">
+    {library.length > 0 ? (
+      library.map((game) => (
+        <div key={game.id} className="game-card">
+          <img src={game.background_image} alt={game.name} />
+          <h3 className="game-card-title">{game.name}</h3>
+          <p className="game-card-info">
+            <strong>Géneros:</strong> {game.genres?.map((genre) => genre.name).join(", ")}
+          </p>
+        </div>
+      ))
+    ) : (
+      <p style={{ color: "#ccc", textAlign: "center" }}>Tu biblioteca está vacía.</p>
+    )}
+  </div>
+)}
+
 
             {isModalOpen && (
               <div className="game-list-modal-backdrop">
