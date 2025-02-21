@@ -31,16 +31,22 @@ const App = () => {
   };
 
 
+
   useEffect(() => {
     const storedUser = getLocalStorageData("currentUser");
     if (storedUser) {
       const storedWishlist = getLocalStorageData(`wishlist_${storedUser.username}`) || [];
       const storedLibrary = getLocalStorageData(`library_${storedUser.username}`) || [];
       const storedCart = getLocalStorageData(`cart_${storedUser.username}`) || [];
-      setCurrentUser({
+  
+      //MODIFCAR CUANDO TENGAMOS LOS ROLES
+      const userWithBalance = {
         ...storedUser,
         wishlist: storedWishlist,
-      });
+        balance: storedUser.balance ?? 500, 
+      };
+  
+      setCurrentUser(userWithBalance);
       setLibrary(storedLibrary);
       setCart(storedCart);
     } else {
@@ -49,6 +55,7 @@ const App = () => {
       setCart([]);
     }
   }, []);
+  
 
 
   useEffect(() => {

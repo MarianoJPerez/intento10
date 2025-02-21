@@ -52,3 +52,16 @@ nav a, nav button {
   .invert-image {
     transform: scaleX(-1);
   }
+  .pagination-button {
+    background-color: blue; 
+    color: white;           
+    border: none;
+    padding: 8px 12px;
+    margin: 0 3px;
+    cursor: pointer;
+  }
+  
+  .pagination-button:hover {
+    background-color: #0055cc; 
+  }
+  
