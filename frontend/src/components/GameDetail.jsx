@@ -6,7 +6,12 @@ const GameDetail = ({ game, onBack }) => {
       {/* Header con botón de retroceso */}
       <div className="w-full max-w-6xl flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">INFINITY GAMES</h2>
-       
+        <button
+          onClick={onBack}
+          className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded"
+        >
+          Volver a la Lista
+        </button>
       </div>
 
       {/* Contenedor principal */}

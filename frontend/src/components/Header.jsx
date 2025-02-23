@@ -22,9 +22,7 @@ const Header = ({ currentUser, handleLogout }) => {
               </button>
             </div>
 
-            <p className="header-balance-text">
-              Saldo: <span className="balance">${currentUser.balance ?? "0.00"}</span>
-            </p>
+            
           </>
         ) : (
           <p className="header-welcome-text">No has iniciado sesión</p>
