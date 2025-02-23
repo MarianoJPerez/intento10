@@ -1,0 +1,38 @@
+Bueno este es el codigo que use para generar un rol admin
+async function HacerAdmin() {
+  const myUID = "Rz0RWxNo0lfCc528fJaJax1cCtJ2"; // Reemplázalo con tu UID real
+
+  try {
+    await admin.auth().setCustomUserClaims(myUID, { role: "admin" });
+    console.log(`persona con UID ${myUID} ahora es ADMIN`);
+  } catch (error) {
+    console.error("error asignando rol de admin:", ERROR);
+  }
+}
+
+ Ejecutar la función para asignar el rol
+HacerAdmin();
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+CON ESTE OTRO CODIGO VERIFICO CON UNA LISTA LOS ROLES Y LOS USUARIOS
+
+app.get('/api/users', async (req, res) => {
+  try {
+    const listUsers = await admin.auth().listUsers();
+    const users = listUsers.users.map(user => ({
+      uid: user.uid,
+      email: user.email,
+      role: user.customClaims?.role || "user", // Si no tiene rol, se asume "user"
+    }));
+    res.json(users);
+  } catch (error) {
+    res.status(500).send({ error: "Error al obtener usuarios" });
+  }
+});
+
+
+
+
+GET http://localhost:3000/api/users
+
+

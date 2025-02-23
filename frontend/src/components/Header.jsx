@@ -11,23 +11,24 @@ const Header = ({ currentUser, handleLogout }) => {
       </div>
 
       <div className="header-user-container">
-        
-        <div className="header-top-row">
-          <p className="header-welcome-text">
-            Bienvenido, <span className="username">{currentUser.username}</span>
-          </p>
-          <button
-            onClick={handleLogout}
-            className="header-logout-button"
-          >
-            Cerrar Sesión
-          </button>
-        </div>
+        {currentUser ? (
+          <>
+            <div className="header-top-row">
+              <p className="header-welcome-text">
+                Bienvenido, <span className="username">{currentUser.username || "Usuario"}</span>
+              </p>
+              <button onClick={handleLogout} className="header-logout-button">
+                Cerrar Sesión
+              </button>
+            </div>
 
-        
-        <p className="header-balance-text">
-          Saldo: <span className="balance">${currentUser.balance}</span>
-        </p>
+            <p className="header-balance-text">
+              Saldo: <span className="balance">${currentUser.balance ?? "0.00"}</span>
+            </p>
+          </>
+        ) : (
+          <p className="header-welcome-text">No has iniciado sesión</p>
+        )}
       </div>
     </header>
   );
