@@ -2,21 +2,23 @@ import { auth } from "../../firebaseconfig";
 import { useEffect, useState } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../assets/styleslogin.css";
 
 const LoginWithCarouselAPI = ({ setCurrentUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const navigate = useNavigate(); // <-- Aquí se inicializa
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Forzamos la actualización del token para obtener las custom claims
         const tokenResult = await user.getIdTokenResult(true);
-        console.log("✅ Token claims:", tokenResult.claims);
+        console.log(" Token claims:", tokenResult.claims);
       } else {
-        console.log("❌ No hay usuario autenticado.");
+        console.log(" No hay usuario autenticado.");
       }
     });
   }, []);
@@ -38,21 +40,34 @@ const LoginWithCarouselAPI = ({ setCurrentUser }) => {
         const user = userCredential.user;
         // Forzamos la actualización del token para que incluya las custom claims (como role)
         const tokenResult = await user.getIdTokenResult(true);
-        console.log("✅ Token claims actualizadas:", tokenResult.claims);
+        console.log(" Token claims actualizadas:", tokenResult.claims);
         const role = tokenResult.claims.role || "user";
 
-        // Enviamos el token (actualizado) al backend para validar y obtener más datos si es necesario
-        const response = await axios.post("http://localhost:3000/api/login", { idToken: tokenResult.token });
-        // Incluimos el role obtenido directamente del token
-        setCurrentUser({ ...response.data, role });
+// Construir el objeto userData con la información necesaria
+const userData = {
+  email: user.email,
+  // Usa displayName si existe, o extrae el nombre del email
+  username: user.displayName || user.email.split("@")[0],
+  role: role,
+  balance: 500, // Puedes asignar el balance que manejes o traerlo desde otra fuente
+};
 
-        console.log("Login exitoso, cookie de sesión creada.");
+// Enviamos el token (actualizado) al backend para validar y obtener más datos si es necesario
 
-        if (role === "admin") {
-          window.location.href = "/admin";
-        } else {
-          window.location.href = "/";
-        }
+await axios.post("http://localhost:3000/api/login", { idToken: tokenResult.token });
+
+// Guarda los datos de usuario en el estado global
+setCurrentUser(userData);
+
+console.log("Login exitoso, cookie de sesión creada.");
+
+// Redirige usando navigate para respetar el basename
+if (role === "admin") {
+  navigate("/admin");
+} else {
+  navigate("/");
+}
+
       }
     } catch (error) {
       console.error("Código de error:", error.code);

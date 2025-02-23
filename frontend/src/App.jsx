@@ -5,6 +5,7 @@ import GameList from "./components/GameList";
 import Header from "./components/Header";
 import GameDetail from "./components/GameDetail";
 import AdminPanel from "./components/AdminPanel";
+import ApiGames from "./components/apigames"; 
 import axios from "axios";
 import "./styles.css";
 
@@ -16,7 +17,6 @@ const App = () => {
   const [cart, setCart] = useState([]);
   const [library, setLibrary] = useState([]);
 
- 
   const getLocalStorageData = (key) => {
     try {
       const data = localStorage.getItem(key);
@@ -27,7 +27,6 @@ const App = () => {
     }
   };
 
- 
   useEffect(() => {
     const storedUser = getLocalStorageData("currentUser");
     if (storedUser) {
@@ -137,15 +136,13 @@ const App = () => {
   };
 
   return (
-    <Router>
+    <Router basename="/plataformasDesarrollo">
       <Header currentUser={currentUser} handleLogout={handleLogout} />
       <Routes>
-       
         {!currentUser ? (
           <Route path="*" element={<LoginWithCarouselAPI setCurrentUser={setCurrentUser} />} />
         ) : (
           <>
- 
             {currentUser.role !== "admin" && (
               <Route
                 path="/"
@@ -171,11 +168,13 @@ const App = () => {
                 }
               />
             )}
-
-          
-            {currentUser.role === "admin" && <Route path="/admin" element={<AdminPanel />} />}
-
-     
+            {currentUser.role === "admin" && (
+              <>
+                <Route path="/admin" element={<AdminPanel />} />
+                {/* Ruta para la vista de CRUD de juegos */}
+                <Route path="/admin/apigames" element={<ApiGames />} />
+              </>
+            )}
             <Route path="*" element={<Navigate to={currentUser.role === "admin" ? "/admin" : "/"} />} />
           </>
         )}

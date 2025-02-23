@@ -22,6 +22,7 @@ const GameList = ({
   const [gameToRemove, setGameToRemove] = useState(null);
   const [currentView, setCurrentView] = useState('list');
 
+  
   // PAGINACIÓN
   const [currentPage, setCurrentPage] = useState(1);
   const gamesPerPage = 8;
