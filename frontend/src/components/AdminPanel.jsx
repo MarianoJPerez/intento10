@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import "../assets/admin.css";
 
 const AdminPanel = () => {
   const [users, setUsers] = useState([]);
@@ -8,83 +9,100 @@ const AdminPanel = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const token = await auth.currentUser.getIdTokenResult();
-      if (token.claims.role !== "admin") {
-        navigate("/"); // Redirigir si no es admin
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const token = await user.getIdTokenResult();
+        if (token.claims.role !== "admin") {
+          navigate("/");
+        } else {
+          fetchUsers();
+        }
+      } else {
+        navigate("/");
       }
-    };
+    });
 
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/users", {
-          headers: {
-            Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
-          },
-        });
-        setUsers(await response.json());
-      } catch (error) {
-        console.error("Error obteniendo usuarios:", error);
-      }
-    };
-
-    checkAdmin();
-    fetchUsers();
+    return () => unsubscribe();
   }, [auth, navigate]);
 
-  const handleDeleteUser = async (userId) => {
+  const fetchUsers = async () => {
     try {
-      await fetch(`http://localhost:3000/api/users/${userId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${await auth.currentUser.getIdToken()}` },
+      const idToken = await auth.currentUser.getIdToken();
+      const response = await fetch("http://localhost:3000/api/users", {
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
       });
-      setUsers(users.filter(user => user.id !== userId));
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error obteniendo usuarios:", error);
+    }
+  };
+
+  // Función actualizada para enviar mensajes, usando el uid del usuario
+  const handleSendMessage = async (uid) => {
+    const message = prompt("Ingrese el mensaje para el usuario:");
+    if (message) {
+      try {
+        const idToken = await auth.currentUser.getIdToken();
+        const response = await fetch("http://localhost:3000/api/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ uid, message }),
+        });
+        if (response.ok) {
+          alert("Mensaje enviado correctamente");
+        } else {
+          alert("Error al enviar el mensaje");
+        }
+      } catch (error) {
+        console.error("Error enviando mensaje:", error);
+      }
+    }
+  };
+
+  const handleDeleteUser = async (uid) => {
+    try {
+      const idToken = await auth.currentUser.getIdToken();
+      await fetch(`http://localhost:3000/api/users/${uid}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      setUsers(users.filter(user => user.uid !== uid));
     } catch (error) {
       console.error("Error eliminando usuario:", error);
     }
   };
 
-  const handleSendMessage = (userEmail) => {
-    const message = prompt("Ingrese el mensaje para el usuario:");
-    if (message) {
-      console.log(`Mensaje enviado a ${userEmail}: ${message}`);
-    }
-  };
-
   return (
-    <div className="p-6 bg-gray-800 text-white min-h-screen">
-      <h2 className="text-3xl font-bold mb-4">Panel de Administrador</h2>
-      <div className="mb-4">
+    <div className="admin-panel">
+      <h2>Panel de Administrador</h2>
+      <div className="nav-buttons">
+    
         <button 
-          onClick={() => signOut(auth)} 
-          className="bg-red-500 px-4 py-2 rounded mr-4"
-        >
-          Cerrar sesión
-        </button>
-        {/* Botón para ir al CRUD de juegos */}
-        <button
-          onClick={() => navigate("/admin/apigames")}
-          className="bg-green-500 px-4 py-2 rounded"
+          onClick={() => navigate("/admin/apigames")} 
+          className="games-management-button"
         >
           Gestión de Juegos
         </button>
       </div>
       
-      <ul>
+      <ul className="admin-users">
         {users.map(user => (
-          <li key={user.id} className="mb-2 p-2 bg-gray-700 rounded flex justify-between">
+          <li key={user.uid}>
             <span>{user.email}</span>
-            <div>
-              <button 
-                onClick={() => handleDeleteUser(user.id)} 
-                className="bg-red-500 px-2 py-1 rounded mr-2"
-              >
+            <div className="btn-group">
+              <button onClick={() => handleDeleteUser(user.uid)}>
                 Eliminar
               </button>
-              <button 
-                onClick={() => handleSendMessage(user.email)} 
-                className="bg-blue-500 px-2 py-1 rounded"
-              >
+              {/* Ahora se envía el uid en lugar del email */}
+              <button onClick={() => handleSendMessage(user.uid)}>
                 Enviar Mensaje
               </button>
             </div>

@@ -155,4 +155,6 @@
   .pagination-button:hover {
     background-color: #218838;
   }
-  
+  .user-messages {
+    margin-bottom: 2rem;
+  }

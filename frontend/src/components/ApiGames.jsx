@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import "../assets/api.css";
 
 const ApiGames = () => {
   const auth = getAuth();
@@ -107,37 +108,27 @@ const ApiGames = () => {
   if (loading) return <p>Cargando...</p>;
 
   return (
-    <div className="p-6 bg-gray-900 text-white min-h-screen">
-      {/* Botón para volver al AdminPanel */}
+    <div className="api-games">
       <div className="mb-4">
-        <button
-          onClick={handleBackToAdmin}
-          className="bg-blue-500 hover:bg-blue-600 p-2 rounded"
-        >
+        <button onClick={handleBackToAdmin} className="btn">
           Volver al AdminPanel
         </button>
       </div>
 
-      <h2 className="text-3xl font-semibold mb-6">Gestión de Juegos</h2>
+      <h2>Gestión de Juegos</h2>
 
-      {/* Botón para restaurar cambios */}
       <div className="mb-4">
-        <button
-          onClick={handleRestore}
-          className="bg-orange-500 hover:bg-orange-600 p-2 rounded"
-        >
+        <button onClick={handleRestore} className="btn">
           Restaurar Cambios
         </button>
       </div>
 
-      {/* Formulario para agregar o editar juego */}
-      <form onSubmit={handleFormSubmit} className="mb-8">
+      <form onSubmit={handleFormSubmit}>
         <input
           type="text"
           placeholder="Nombre del juego"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="p-2 rounded mr-2"
           required
         />
         <input
@@ -145,13 +136,9 @@ const ApiGames = () => {
           placeholder="Precio"
           value={formData.price}
           onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-          className="p-2 rounded mr-2"
           required
         />
-        <button
-          type="submit"
-          className="bg-green-500 hover:bg-green-600 p-2 rounded"
-        >
+        <button type="submit" className="btn">
           {editingGame ? "Actualizar Juego" : "Agregar Juego"}
         </button>
         {editingGame && (
@@ -161,32 +148,27 @@ const ApiGames = () => {
               setEditingGame(null);
               setFormData({ name: "", price: "" });
             }}
-            className="bg-gray-500 hover:bg-gray-600 p-2 rounded ml-2"
+            className="btn"
           >
             Cancelar
           </button>
         )}
       </form>
 
-      {/* Listado de juegos */}
       {games.length === 0 ? (
         <p>No hay juegos disponibles.</p>
       ) : (
-        <ul>
+        <ul className="game-list">
           {games.map((game) => (
-            <li key={game.id} className="mb-2 flex justify-between items-center border-b border-gray-700 py-2">
-              <span>{game.name} - ${game.price}</span>
-              <div>
-                <button
-                  onClick={() => handleEdit(game)}
-                  className="bg-blue-500 hover:bg-blue-600 p-2 rounded mr-2"
-                >
+            <li key={game.id}>
+              <span>
+                {game.name} - ${game.price}
+              </span>
+              <div className="btn-group">
+                <button onClick={() => handleEdit(game)} className="btn">
                   Editar
                 </button>
-                <button
-                  onClick={() => handleDelete(game.id)}
-                  className="bg-red-500 hover:bg-red-600 p-2 rounded"
-                >
+                <button onClick={() => handleDelete(game.id)} className="btn">
                   Eliminar
                 </button>
               </div>

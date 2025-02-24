@@ -4,7 +4,7 @@ const axios = require('axios');
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
 
-// Inicializar Firebase Admin
+//INCALIZO FIREBASE
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -15,10 +15,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Almacenamiento en memoria para los juegos
+//ALMACENO LOS JUEGOS EN MEMORIA
 let localGames = [];
 
-// Middleware para verificar autenticación
+// MIDDLEWARE PARA AUTENTICAR
 async function checkAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -27,7 +27,7 @@ async function checkAuth(req, res, next) {
   const idToken = authHeader.split("Bearer ")[1];
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.user = decodedToken; // Guarda el usuario decodificado en req.user
+    req.user = decodedToken;
     next();
   } catch (error) {
     console.error("Error verificando el idToken:", error);
@@ -35,7 +35,7 @@ async function checkAuth(req, res, next) {
   }
 }
 
-// Middleware para verificar si el usuario es administrador
+// MIDDLEWARE PARA CHEKAR SI EL USER ES ADMINISTRADOR 
 async function checkAdmin(req, res, next) {
   if (!req.user) {
     return res.status(401).send({ error: 'No autenticado' });
@@ -43,7 +43,7 @@ async function checkAdmin(req, res, next) {
   try {
     const user = await admin.auth().getUser(req.user.uid);
     if (user.customClaims && user.customClaims.role === 'admin') {
-      next(); // Usuario es admin, puede continuar
+      next(); //SI ES ADMIN LO DEJAMOS AVANZAR
     } else {
       return res.status(403).send({ error: 'No tienes permisos de administrador' });
     }
@@ -52,10 +52,10 @@ async function checkAdmin(req, res, next) {
   }
 }
 
-// Endpoint para obtener juegos (si aún no se han cargado, los carga desde RAWG)
+// ENDPONIT PARA LA OBTENCION DE JUEGOS
 app.get('/api/games', async (req, res) => {
   try {
-    // Si no hay juegos en memoria, se llenan con datos de RAWG
+    // LA MEMORIA QUE HICE ANTES SI NO TIENE DATOS PREVIOS SE LLENAN CON DATOS RAWG
     if (localGames.length === 0) {
       const page = req.query.page || 1;
       const pageSize = req.query.page_size || 40;
@@ -70,17 +70,17 @@ app.get('/api/games', async (req, res) => {
   }
 });
 
-// Endpoint para agregar un juego (simulado en memoria)
+// ENDPOINT PARA AGREGAR UN JUEGO SE SIMULA EN MEMORIA
 app.post('/api/games', checkAuth, checkAdmin, async (req, res) => {
   const { name, price } = req.body;
-  // Simula la generación de un ID. Si hay juegos, toma el mayor id y le suma 1.
+  // SIMULO UN NUEVO ID (LO GENERAMOS) SI HAY ALGUN JUEGO, TOMO EL MAYOR ID Y LE SUMO 1.
   const newId = localGames.length > 0 ? Math.max(...localGames.map(game => Number(game.id))) + 1 : 1;
   const newGame = { id: newId, name, price };
   localGames.push(newGame);
   res.json({ message: 'Juego agregado', game: newGame });
 });
 
-// Endpoint para actualizar un juego (simulado en memoria)
+// ENDPOINT PARA ACTUALIZAR UN JUEGO
 app.put('/api/games/:id', checkAuth, checkAdmin, async (req, res) => {
   const gameId = req.params.id;
   const { name, price } = req.body;
@@ -96,7 +96,7 @@ app.put('/api/games/:id', checkAuth, checkAdmin, async (req, res) => {
   res.json({ message: 'Juego actualizado correctamente' });
 });
 
-// Endpoint para eliminar un juego (simulado en memoria)
+// ENDPOINT PARA ELIMINAR UN JUEGO
 app.delete('/api/games/:id', checkAuth, checkAdmin, async (req, res) => {
   const gameId = req.params.id;
   const initialLength = localGames.length;
@@ -107,7 +107,7 @@ app.delete('/api/games/:id', checkAuth, checkAdmin, async (req, res) => {
   res.json({ message: 'Juego eliminado correctamente' });
 });
 
-// Otros endpoints (usuarios, login, etc.) se mantienen igual
+// ENDPOINT DE OBTENCION DE USERS
 app.get('/api/users', async (req, res) => {
   try {
     const listUsers = await admin.auth().listUsers();
@@ -132,7 +132,7 @@ app.post('/api/set-admin', checkAuth, checkAdmin, async (req, res) => {
   }
 });
 
-const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 días
+const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 DIAS ES LO QUE ENCONTRE PREDETERMINADO.
 app.post('/api/login', async (req, res) => {
   const idToken = req.body.idToken;
   if (!idToken) {
@@ -153,11 +153,54 @@ app.get('/api/protected', checkAuth, (req, res) => {
   res.status(200).send({ message: 'Acceso concedido', user: req.user });
 });
 
+//ENDPOINT CREADO PARA ELIMINAR USUARIOS DE FIREBASEAUTENTICATION
+app.delete('/api/users/:uid', checkAuth, checkAdmin, async (req, res) => {
+  const uid = req.params.uid;
+  try {
+    const userRecord = await admin.auth().getUser(uid);
+  // CUANDO BORRE MI ADMINISTRADOR ME DI CUENTA QUE ESTO ERA IMPORTANTE.
+    if (userRecord.customClaims && userRecord.customClaims.role === 'admin') {
+      return res.status(403).json({ error: 'No se puede eliminar a un administraGOD' });
+    }
+    await admin.auth().deleteUser(uid);
+    res.json({ message: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    console.error('Error eliminando usuario:', error);
+    res.status(500).json({ error: 'Error eliminando usuario' });
+  }
+});
+
+
+
+let userMessages = {};
+//GENERO UN NUEVO ESPACIO DE ALMACENAMIENTO EN MEMORIA PARA LOS MENSAJES Y VAMOS A CREAR LOS RESPECTIVOS ENDPOINTS
+
+// ENDPOINT PARA QUE UN ADMINISTRADOR PUEDA MANDARLE UN MENSAJE A UN USUARIO. SE PODRA MANDAR UN MENSAJE EL MISMO?
+app.post('/api/messages', checkAuth, checkAdmin, async (req, res) => {
+  const { uid, message } = req.body;
+  if (!uid || !message) {
+    return res.status(400).json({ error: 'Faltan datos (uid o message)' });
+  }
+  if (!userMessages[uid]) {
+    userMessages[uid] = [];
+  }
+  userMessages[uid].push({ message, timestamp: new Date() });
+  res.json({ message: 'Mensaje enviado correctamente' });
+});
+
+// ENDPOINT PARA QUE EL USER OBTENGA SUS MENSAJES
+app.get('/api/messages', checkAuth, async (req, res) => {
+  const uid = req.user.uid; 
+  const messages = userMessages[uid] || [];
+  res.json(messages);
+});
+
+
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en el puerto ${PORT}`);
 });
 
-// Endpoint para restaurar 
+// ENDPOINT PARA RESTAURAR Y QUE DEJE DE REVENTAR
 app.post('/api/games/restore', checkAuth, checkAdmin, async (req, res) => {
   try {
     const page = req.query.page || 1;

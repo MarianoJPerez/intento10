@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AddGames from './AddGames';
 import GameDetail from './GameDetail';
 import axios from 'axios';
+import { getAuth } from 'firebase/auth';
 import '../assets/gameList.css';
 
 const GameList = ({
@@ -20,6 +21,8 @@ const GameList = ({
   const [gameToRemove, setGameToRemove] = useState(null);
   const [currentView, setCurrentView] = useState('list');
   const [selectedGame, setSelectedGame] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // PAGINACIÓN
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,6 +70,37 @@ const GameList = ({
       }
     }
   };
+
+  // Función para obtener los mensajes del usuario
+  const fetchMessages = async () => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.error("No hay usuario autenticado en Firebase Auth.");
+        return;
+      }
+      const token = await user.getIdToken();
+      const response = await axios.get("http://localhost:3000/api/messages", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("Mensajes obtenidos:", response.data);
+      setMessages(response.data);
+    } catch (error) {
+      console.error("Error al obtener mensajes:", error);
+    }
+  };
+
+  // Listener para actualizar mensajes cuando el usuario está autenticado
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchMessages();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   // COMPRAR
   const purchaseGame = (game) => {
@@ -179,6 +213,35 @@ const GameList = ({
     <div className="game-list-page">
       <div className="game-list-banner"></div>
       <div className="game-list-container">
+        {/* Botón para mostrar/ocultar notificaciones */}
+        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+          <button 
+            className="game-list-button" 
+            onClick={() => setShowNotifications(!showNotifications)}
+          >
+            Notificaciones
+          </button>
+        </div>
+
+        {/* Sección de mensajes recibidos */}
+        {showNotifications && (
+          <div className="user-messages">
+            <h3 className="game-list-title">Mensajes Recibidos</h3>
+            {messages.length > 0 ? (
+              <ul>
+                {messages.map((msg, index) => (
+                  <li key={index} style={{ marginBottom: "0.5rem", background: "#141414", padding: "0.5rem", borderRadius: "4px" }}>
+                    <p style={{ color: "#ccc", margin: 0 }}>{msg.message}</p>
+                    <small style={{ color: "#0aff90" }}>{new Date(msg.timestamp).toLocaleString()}</small>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ color: "#ccc", textAlign: "center" }}>No tienes notificaciones</p>
+            )}
+          </div>
+        )}
+
         {currentView === 'add' ? (
           <AddGames
             games={localGames}
